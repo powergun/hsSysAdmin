@@ -63,14 +63,14 @@ demoWalkResultAsMonoid = do
   print $ emptyResult
   print $ m1 `mappend` m2
 
--- display :: WalkResult -> IO ()
--- display (WalkResult m) = do
-
+display :: WalkResult -> IO ()
+display (WalkResult m) = do
+  print $ for (toList m) (\a -> flip a)
 
 main :: IO ()
 main = do
   (_, r) <- W.runWriterT (walkM "../..")
-  print r
+  display r
   -- (_, r2) <- W.runWriterT (walkM "/Users/wein/work/dev/canva/infrastructure")
   -- print r2
 
