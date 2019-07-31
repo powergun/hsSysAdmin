@@ -1,34 +1,50 @@
 #!/usr/bin/env stack runghc
 
-import Control.Monad (forM, forM_)
+import Control.Monad (forM_, forM)
+import qualified Control.Monad.Writer as W
 import System.Directory (doesDirectoryExist, getDirectoryContents)
 import System.FilePath ((</>))
+import System.FilePath.Posix (takeExtension)
 import Data.List (isSuffixOf)
 import qualified Data.Map as M
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as BC
 
 -- the basic skeleton of a static analysis tool
+
+readFileSafe :: FilePath -> IO String
+readFileSafe pth = do
+  bytes <- B.readFile pth
+  return $ BC.unpack bytes
+
 preFilter :: FilePath -> Bool
-preFilter filePath = filePath `notElem` [".", "..", ".git"]
+preFilter baseName
+  | baseName `elem` [".", "..", ".git"] = False
+  | otherwise = True
 
-process :: FilePath -> IO WalkResult
-process pth = do
-  case (".hs" `isSuffixOf` pth) of
-    True -> do 
-      contents <- readFile pth
-      putStrLn $ pth ++ "   " ++ (show $ length (lines contents))
-    False -> return ()
-  return emptyResult
-
-walk :: FilePath -> IO WalkResult
-walk topDir = do
+getRecursiveContents :: FilePath -> IO [FilePath]
+getRecursiveContents topDir = do
   names <- getDirectoryContents topDir
-  forM_ (filter preFilter names) $ \name -> do
-    let pth = topDir </> name
-    isDirectory <- doesDirectoryExist pth
+  paths <- forM (filter preFilter names) $ \name -> do
+    let path = topDir </> name
+    isDirectory <- doesDirectoryExist path
     if isDirectory
-      then walk(pth)
-      else process(pth)
-  return emptyResult
+      then getRecursiveContents path
+      else return [path]
+  return (concat paths)
+
+analysis :: [FilePath] -> W.WriterT WalkResult IO ()
+analysis [] = return ()
+analysis (pth:pths) = do
+  let ext = takeExtension pth
+  contents <- W.lift (readFileSafe pth)
+  W.tell $ WalkResult $ M.fromList [(ext, (length . lines) contents)]
+  analysis pths
+
+walkM :: FilePath -> W.WriterT WalkResult IO ()
+walkM topDir = do
+  pths <- W.lift $ getRecursiveContents topDir
+  analysis pths
 
 data WalkResult = WalkResult (M.Map String Int)
                   deriving (Show)
@@ -47,6 +63,14 @@ demoWalkResultAsMonoid = do
   print $ emptyResult
   print $ m1 `mappend` m2
 
+-- display :: WalkResult -> IO ()
+-- display (WalkResult m) = do
+
+
 main :: IO ()
 main = do
-  print 1
+  (_, r) <- W.runWriterT (walkM "../..")
+  print r
+  -- (_, r2) <- W.runWriterT (walkM "/Users/wein/work/dev/canva/infrastructure")
+  -- print r2
+
