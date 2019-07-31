@@ -5,8 +5,9 @@ import qualified Control.Monad.Writer as W
 import System.Directory (doesDirectoryExist, getDirectoryContents)
 import System.FilePath ((</>))
 import System.FilePath.Posix (takeExtension)
-import Data.List (isSuffixOf)
+import Data.List (isSuffixOf, sortBy)
 import qualified Data.Map as M
+import qualified Data.Text as T
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as BC
 
@@ -65,12 +66,14 @@ demoWalkResultAsMonoid = do
 
 display :: WalkResult -> IO ()
 display (WalkResult m) = do
-  print $ for (toList m) (\a -> flip a)
+  let sorted = sortBy (\(k1, v1) (k2, v2) -> v2 `compare` v1) $ M.toList m
+  forM_ sorted $ \(k, v) -> do
+    print $ (T.unpack $ T.justifyRight 10 ' ' (T.pack $ show v)) ++ "  " ++ k 
 
 main :: IO ()
 main = do
-  (_, r) <- W.runWriterT (walkM "../..")
-  display r
-  -- (_, r2) <- W.runWriterT (walkM "/Users/wein/work/dev/canva/infrastructure")
-  -- print r2
+  -- (_, r) <- W.runWriterT (walkM "../..")
+  -- display r
+  (_, r2) <- W.runWriterT (walkM "/Users/wein/work/dev/canva/infrastructure")
+  display r2
 
