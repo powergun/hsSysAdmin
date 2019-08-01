@@ -1,15 +1,16 @@
 #!/usr/bin/env stack runghc
 
-import Control.Monad (forM_, forM)
-import qualified Control.Monad.Writer as W
-import System.Directory (doesDirectoryExist, getDirectoryContents)
-import System.FilePath ((</>))
-import System.FilePath.Posix (takeExtension)
-import Data.List (isSuffixOf, sortBy)
-import qualified Data.Map as M
-import qualified Data.Text as T
-import qualified Data.ByteString as B
+import           Control.Monad         (forM, forM_)
+import qualified Control.Monad.Writer  as W
+import qualified Data.ByteString       as B
 import qualified Data.ByteString.Char8 as BC
+import           Data.List             (isSuffixOf, sortBy)
+import qualified Data.Map              as M
+import qualified Data.Text             as T
+import           System.Directory      (doesDirectoryExist,
+                                        getDirectoryContents)
+import           System.FilePath       ((</>))
+import           System.FilePath.Posix (takeExtension)
 
 -- the basic skeleton of a static analysis tool
 
@@ -18,15 +19,17 @@ readFileSafe pth = do
   bytes <- B.readFile pth
   return $ BC.unpack bytes
 
-preFilter :: FilePath -> Bool
-preFilter baseName
-  | baseName `elem` [".", "..", ".git"] = False
+preFilter :: (FilePath, FilePath) -> Bool
+preFilter (pth, baseName)
+  | baseName `elem` [".", "..", ".git", ".terraform"] = False
+  | ".com" `isSuffixOf` pth = False
   | otherwise = True
 
 getRecursiveContents :: FilePath -> IO [FilePath]
 getRecursiveContents topDir = do
   names <- getDirectoryContents topDir
-  paths <- forM (filter preFilter names) $ \name -> do
+  let pathAndNames = map (\n -> ((topDir </> n), n)) names
+  paths <- forM (filter preFilter pathAndNames) $ \(pth, name) -> do
     let path = topDir </> name
     isDirectory <- doesDirectoryExist path
     if isDirectory
@@ -54,7 +57,7 @@ instance Semigroup WalkResult where
   (<>) = mappend
 instance Monoid WalkResult where
   mempty = emptyResult
-  mappend (WalkResult m1) (WalkResult m2) = 
+  mappend (WalkResult m1) (WalkResult m2) =
     WalkResult (M.unionWith (+) m1 m2)
 
 demoWalkResultAsMonoid :: IO ()
@@ -68,12 +71,12 @@ display :: WalkResult -> IO ()
 display (WalkResult m) = do
   let sorted = sortBy (\(k1, v1) (k2, v2) -> v2 `compare` v1) $ M.toList m
   forM_ sorted $ \(k, v) -> do
-    print $ (T.unpack $ T.justifyRight 10 ' ' (T.pack $ show v)) ++ "  " ++ k 
+    print $ (T.unpack $ T.justifyRight 10 ' ' (T.pack $ show v)) ++ "  " ++ k
 
 main :: IO ()
 main = do
-  -- (_, r) <- W.runWriterT (walkM "../..")
-  -- display r
-  (_, r2) <- W.runWriterT (walkM "/Users/wein/work/dev/canva/infrastructure")
-  display r2
+  (_, r) <- W.runWriterT (walkM "..")
+  display r
+  -- (_, r2) <- W.runWriterT (walkM "/Users/wein/work/dev/canva/infrastructure")
+  -- display r2
 
