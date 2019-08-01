@@ -8,9 +8,11 @@ import           Data.List             (isSuffixOf, sortBy)
 import qualified Data.Map              as M
 import qualified Data.Text             as T
 import           System.Directory      (doesDirectoryExist,
-                                        getDirectoryContents)
+                                        getDirectoryContents,
+                                        pathIsSymbolicLink)
 import           System.FilePath       ((</>))
 import           System.FilePath.Posix (takeExtension)
+import           System.Posix.Files    (getSymbolicLinkStatus)
 
 -- the basic skeleton of a static analysis tool
 
@@ -22,7 +24,6 @@ readFileSafe pth = do
 preFilter :: (FilePath, FilePath) -> Bool
 preFilter (pth, baseName)
   | baseName `elem` [".", "..", ".git", ".terraform"] = False
-  | ".com" `isSuffixOf` pth = False
   | otherwise = True
 
 getRecursiveContents :: FilePath -> IO [FilePath]
@@ -31,10 +32,14 @@ getRecursiveContents topDir = do
   let pathAndNames = map (\n -> ((topDir </> n), n)) names
   paths <- forM (filter preFilter pathAndNames) $ \(pth, name) -> do
     let path = topDir </> name
+    isSymlink <- pathIsSymbolicLink pth
     isDirectory <- doesDirectoryExist path
     if isDirectory
       then getRecursiveContents path
-      else return [path]
+      else
+        if isSymlink
+          then return []
+          else return [path]
   return (concat paths)
 
 analysis :: [FilePath] -> W.WriterT WalkResult IO ()
@@ -75,8 +80,14 @@ display (WalkResult m) = do
 
 main :: IO ()
 main = do
-  (_, r) <- W.runWriterT (walkM "..")
-  display r
-  -- (_, r2) <- W.runWriterT (walkM "/Users/wein/work/dev/canva/infrastructure")
+  -- (_, r) <- W.runWriterT (walkM "..")
+  -- display r
+
+  -- CA infra
+  -- (_, r2) <- W.runWriterT (walkM "/Users/weining/work/canva/infrastructure")
   -- display r2
+
+  -- CA main
+  (_, r3) <- W.runWriterT (walkM "/Users/weining/work/canva/canva")
+  display r3
 
