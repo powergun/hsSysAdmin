@@ -3,8 +3,8 @@
 -- real world haskell P/214
 -- haskell provides openTempFile and openBinaryTempFile
 
-import System.Directory
-import System.IO
+import           System.Directory
+import           System.IO
 
 demoWriteToTempFile :: IO ()
 demoWriteToTempFile = do
@@ -13,7 +13,7 @@ demoWriteToTempFile = do
   dir <- getTemporaryDirectory
   print dir
   -- "motion" is the template for basename; it will have some
-  -- random characters added to it to ensure that the result is 
+  -- random characters added to it to ensure that the result is
   -- truly unique
   -- return a tuple
   (filename, h) <- openTempFile dir "motion"
@@ -25,5 +25,5 @@ demoWriteToTempFile = do
   removeFile filename
 
 main :: IO ()
-main = do
+main =
   demoWriteToTempFile
