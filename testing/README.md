@@ -14,7 +14,7 @@ https://ocharles.org.uk/posts/2013-12-03-24-days-of-hackage-tasty.html
 
 ## HUnit
 
-`package.yaml` 
+`package.yaml`
 
 dependency:
 
