@@ -40,7 +40,7 @@ executables:
 
 tests:
   testing-test:
-    main:                Spec.hs
+    main:                RunTests.hs
     source-dirs:         test
     ghc-options:
     - -threaded
@@ -48,3 +48,8 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - testing
+    - HUnit
+    - tasty
+    - tasty-hunit
+    - tasty-smallcheck
+    - tasty-quickcheck
