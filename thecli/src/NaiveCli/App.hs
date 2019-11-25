@@ -5,7 +5,23 @@ import qualified Control.Exception   as E
 import qualified Data.Bifunctor      as BF
 import qualified Data.Bool           as B
 import qualified Data.Char           as C
+
+-- require: optparse-applicative
 import           Options.Applicative
+
+{-
+builtin help message generator:
+
+
+stack run naive -- --help
+
+File Fun
+
+Usage: naive [--capitalize] [--excited] [--stdin] [--file ARG]
+
+Available options:
+  -h,--help                Show this help text
+-}
 
 -- types
 
