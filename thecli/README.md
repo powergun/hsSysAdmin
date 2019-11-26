@@ -19,3 +19,13 @@ command args are passed behind `<target name>`
 example: `stack run foo`, this should print out iddqd
 
 ## The naive cli
+
+the initial version of the cli program, exhibiting an anit-pattern
+of passing around options, doing excessive exception-handling etc
+
+## The better cli
+
+the final version of the cli program, use monad reader transformer
+to share the option (the "environment"); use ExceptT;
+
+the resulting framework supports robust exception handling and extendability
