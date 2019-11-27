@@ -21,11 +21,14 @@ example: `stack run foo`, this should print out iddqd
 ## The naive cli
 
 the initial version of the cli program, exhibiting an anit-pattern
-of passing around options, doing excessive exception-handling etc
+of passing around the `Options` value, doing excessive exception-handling etc
+
+the part dealing with command line arguments (Option.Applicative)
+is useful - see MyImplVxx.hs for my exercises
 
 ## The better cli
 
 the final version of the cli program, use monad reader transformer
-to share the option (the "environment"); use ExceptT;
+to share the `Options` value (aka the "environment"); use ExceptT;
 
 the resulting framework supports robust exception handling and extendability
