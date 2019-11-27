@@ -83,11 +83,20 @@ The maybe function takes a default value, a function, and a Maybe value.
 If the Maybe value is Nothing, the function returns the default value.
 Otherwise, it applies the function to the value inside the Just and
 returns the result.
+
+bifunctor
+https://hackage.haskell.org/package/bifunctors-3.2.0.1/docs/Data-Bifunctor.html#v:first
+https://www.schoolofhaskell.com/school/to-infinity-and-beyond/pick-of-the-week/profunctors
+first
+first :: (a -> b) -> p a c -> p b cSource
+Map covariantly over the first argument.
 -}
 loadContents :: Options -> IO (Either String String)
 loadContents o =
     maybe defaultResponse readFileFromOptions $ oFileToRead o
   where
+    -- convert the exception to a String while keeping the
+    -- file content as it is
     readFileFromOptions f = BF.first show <$> safeReadFile f
     defaultResponse = return $ Right defaultContent
 
