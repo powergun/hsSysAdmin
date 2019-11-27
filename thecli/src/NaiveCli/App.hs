@@ -45,7 +45,9 @@ runProgram o =
 -- data retrieval and transformation
 
 {-
-either :: (a -> c) -> (b -> c) -> Either a b -> c ???
+https://hackage.haskell.org/package/base-4.12.0.0/docs/Prelude.html#v:either
+Case analysis for the Either type. If the value is Left a, apply the
+first function to a; if it is Right b, apply the second function to b.
 -}
 getSource :: Options -> IO String
 getSource o = B.bool
@@ -76,7 +78,11 @@ defaultContent = "there is a cow\n"
 
 {-
 MY NOTE:
-maybe :: b -> (a -> b) -> Maybe a -> b ??
+https://hackage.haskell.org/package/base-4.12.0.0/docs/Prelude.html#v:maybe
+The maybe function takes a default value, a function, and a Maybe value.
+If the Maybe value is Nothing, the function returns the default value.
+Otherwise, it applies the function to the value inside the Just and
+returns the result.
 -}
 loadContents :: Options -> IO (Either String String)
 loadContents o =
