@@ -1,7 +1,8 @@
 module NaiveCli.MyImplV1 (main) where
 
-import qualified Data.Bool as DB
-import qualified Data.Char as C
+import qualified Control.Exception   as Exc
+import qualified Data.Bool           as DB
+import qualified Data.Char           as C
 import qualified Options.Applicative as OA
 
 main :: IO ()
@@ -20,7 +21,7 @@ parseCLI = OA.execParser $ withInfo parseOptions "Naive"
     withInfo parser text = OA.info (OA.helper <*> parser) (OA.header text)
 
 parseOptions :: OA.Parser Options
-parseOptions = Options 
+parseOptions = Options
              <$> (OA.switch $ OA.long "capitalize")
              <*> (OA.switch $ OA.long "excited")
              <*> (OA.switch $ OA.long "stdin")
@@ -47,9 +48,19 @@ readStdin = getContents
 
 readFileOrDefault :: Options -> IO String
 readFileOrDefault opts = case (oFileToRead opts) of
-                            Just filename -> readFile filename
-                            _ -> readDefault
+                            Just filename -> readFileSafe filename
+                            _             -> readDefault
 
 readDefault :: IO String
 readDefault = return "idnoclip"
 
+readFileSafe :: FilePath -> IO String
+readFileSafe filename = do
+  let doRead :: FilePath -> IO (Either Exc.IOException String)
+      doRead = Exc.try . readFile
+  ret <- doRead filename
+  case ret of
+    Right s -> return s
+    Left exc  -> do
+      print $ show exc
+      readDefault
