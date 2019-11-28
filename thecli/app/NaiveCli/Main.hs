@@ -1,6 +1,6 @@
 module Main where
 
-import qualified NaiveCli.App
+import qualified NaiveCli.MyImplV1 as Sut
 
 main :: IO ()
-main = NaiveCli.App.main
+main = Sut.main
