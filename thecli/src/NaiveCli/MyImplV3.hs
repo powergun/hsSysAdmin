@@ -45,16 +45,18 @@ getText :: Options -> IO String
 getText opts = bool (getTextFromFile opts) getContents (oStdIn opts)
 
 getTextFromFile :: Options -> IO String
-getTextFromFile opts = maybe (return "file://") return fnm
+getTextFromFile opts = maybe (return "file://") readFileSafe fnm
   where
     fnm :: Maybe String
     fnm = oFileToRead opts
+    
 
 defaultText = "iddqd"
 
-readFileSafe :: FilePath -> IO (Either String String)
+readFileSafe :: FilePath -> IO String
 readFileSafe filename = do
   let doRead :: FilePath -> IO (Either IOException String)
       doRead = try . readFile
   ret <- doRead filename
-  return $ first show ret
+  let retString = first show ret
+  return $ either id id retString
