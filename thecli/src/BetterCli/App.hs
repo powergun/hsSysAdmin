@@ -22,8 +22,7 @@ data Options = Options
     }
 
 type AppConfig = MonadReader Options
-data AppError
-    = IOError E.IOException
+data AppError = IOError E.IOException
 
 newtype App a = App {
     runApp :: ReaderT Options (ExceptT AppError IO) a
