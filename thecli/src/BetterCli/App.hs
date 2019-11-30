@@ -26,7 +26,11 @@ data AppError = IOError E.IOException
 
 newtype App a = App {
     runApp :: ReaderT Options (ExceptT AppError IO) a
-} deriving (Monad, Functor, Applicative, AppConfig, MonadIO, MonadError AppError)
+} deriving ( Monad, Functor, Applicative  -- usual suspects
+           , AppConfig  -- Reader
+           , MonadIO  -- IO
+           , MonadError AppError  -- Except
+           )
 
 -- program
 
@@ -34,7 +38,9 @@ main :: IO ()
 main = runProgram =<< parseCLI
 
 runProgram :: Options -> IO ()
-runProgram o = either renderError return =<< runExceptT (runReaderT (runApp run) o)
+runProgram o = either renderError return 
+             -- runExceptT :: ExceptT e m a -> m (Either e a)
+             =<< runExceptT (runReaderT (runApp run) o)
 
 renderError :: AppError -> IO ()
 renderError (IOError e) = do
@@ -42,15 +48,23 @@ renderError (IOError e) = do
     putStrLn $ "  " ++ show e
 
 run :: App ()
-run = liftIO . putStr
-    =<< handleExcitedness
-    =<< handleCapitalization
-    =<< getSource
+-- run = (liftIO . print)
+--     -- App String
+--     =<< handleExcitedness
+--     =<< handleCapitalization
+--     =<< getSource
+
+run = do
+  s <- getSource
+  s <- handleCapitalization s
+  s <- handleExcitedness s
+  liftIO $ print s
 
 -- data retrieval and transformation
 
 getSource :: App String
-getSource = B.bool loadContents (liftIO getContents) =<< asks oStdIn
+getSource = B.bool loadContents (liftIO getContents) 
+          =<< asks oStdIn
 
 handleCapitalization :: AppConfig m => String -> m String
 handleCapitalization s = B.bool s (map C.toUpper s) <$> asks oCapitalize
@@ -62,7 +76,10 @@ loadContents :: App String
 loadContents =
     maybe defaultResponse readFileFromOptions =<< asks oFileToRead
   where
-    readFileFromOptions f = either throwError return =<< BF.first IOError <$> liftIO (safeReadFile f)
+    readFileFromOptions :: FilePath -> App String
+    readFileFromOptions f = either throwError return 
+                          =<< BF.first IOError <$> liftIO (safeReadFile f)
+    defaultResponse :: App String
     defaultResponse = return "This is fun!"
 
 -- CLI parsing
