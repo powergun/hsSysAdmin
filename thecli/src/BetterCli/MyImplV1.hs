@@ -45,6 +45,7 @@ run :: App ()
 run = do
   s <- getText
   s <- handleCapitalize s
+  s <- handleExcited s
   liftIO $ print s
 
 getText :: App String
@@ -52,6 +53,9 @@ getText = return "setmap q3dm3"
 
 handleCapitalize :: AppConfig m => String -> m String
 handleCapitalize s = bool s (map toUpper s) <$> asks oCapitalize
+
+handleExcited :: AppConfig m => String -> m String
+handleExcited s = bool s ("$!#@(&#!@)( " ++ s) <$> asks oExcited
 
 parseCLI :: IO Options
 parseCLI = OA.execParser
