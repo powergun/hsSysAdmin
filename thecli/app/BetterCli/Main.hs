@@ -1,6 +1,6 @@
 module Main where
 
-import qualified BetterCli.App
+import qualified BetterCli.MyImplV1 as Cli
 
 main :: IO ()
-main = BetterCli.App.main
+main = Cli.main
