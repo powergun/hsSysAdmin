@@ -290,9 +290,13 @@ readFileSafe = try . readFile
 when `readFileSafe` encounters an IOException, we use AppError's
 IOError data ctor to bubble this exception up.
 
-Note, throwError does not take the raw exception value IOException;
+Note, throwError does not take the raw exception value IOException,
+because `Except AppError IO` has a return type of
+`IO (Either AppError ())`
 
 ## top-level logic
+
+### fancy `run` function
 
 `run` function can be written in a fancy bind form:
 
@@ -303,3 +307,29 @@ run = liftIO . print =<< handleExcited =<< handleCapitalize =<< getText
 compose `liftIO . print` is to lift IO operation up to the App monad,
 so that it because a single function runs in the App context, taking
 the value returned by the handlers
+
+### the benefit of using AppError
+
+AppError is my own type, therefore I can encapsulate auxiliary data
+in addition to the exception value;
+
+One example is to add a message parameter to IOError data ctor so that
+I can render the error with line number, function name etc...
+
+```haskell
+-- throw
+getTextFromFile :: FilePath -> App String
+getTextFromFile filename =
+  either throwError return =<< first (IOError "readFileSafe") <$> liftIO
+    (readFileSafe filename)
+
+-- render
+renderError :: AppError -> IO ()
+renderError (IOError msg e) = do
+  print $ "An error has occurred at: " ++ msg
+  print . show $ e
+```
+
+The benefit of using a sum type for Error handling (AppError) is
+that I can implement different rendering logic for different context
+of failure
