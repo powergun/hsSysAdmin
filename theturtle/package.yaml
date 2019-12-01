@@ -23,6 +23,7 @@ dependencies:
 - base >= 4.7 && < 5
 - turtle
 - text
+- foldl
 
 library:
   source-dirs: src
@@ -40,6 +41,24 @@ executables:
   fs:
     main:                Main.hs
     source-dirs:         app/Fs
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - theturtle
+  exec:
+    main:                Main.hs
+    source-dirs:         app/Exec
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - theturtle
+  io:
+    main:                Main.hs
+    source-dirs:         app/Io
     ghc-options:
     - -threaded
     - -rtsopts
