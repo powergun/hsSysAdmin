@@ -214,3 +214,92 @@ parseOptions = Options
              <*> (OA.switch $ OA.long "stdin")
              <*> (OA.optional $ OA.strOption $ OA.long "file")
 ```
+
+## develop `getText` function using the new exception-handling mechanism
+
+it all starts from `readFileSafe` which encapsulates the exception
+in an `Either` value;
+
+the `Either` value is temporarily "unpacked" in order for `throwError`
+to work (and to stop the monad bind chain gracefully);
+
+the effect is ultimately bubbled up to the top-most level as another
+`Either` value - that encapsulates my own error type `AppError` - to
+be printed out to stderr
+
+### getText: use App to encapsulate Options-passing and IO
+
+```haskell
+getText :: App String
+getText = bool getTextFromOptions (liftIO getContents) =<< asks oStdIn
+
+getTextFromOptions :: App String
+getTextFromOptions = return "file://not-implemented"
+```
+
+`getTextFromOptions` is to further extract the filename argument
+from Options; for the moment it returns a hardcoded string
+
+Note, there is no longer exception handling logic on this level
+(no `either`) -- this is a major benefit of using stack
+
+### implement `getTextFromOptions`
+
+follow the `App String` pattern (meaning the given function runs
+inside the App context and returns a String value), expand the
+logic of getTextFromOptions to
+
+- getTextFromFile
+- defaultText
+
+```haskell
+getTextFromOptions :: App String
+getTextFromOptions = maybe defaultText getTextFromFile =<< asks oFileToRead
+
+defaultText :: App String
+defaultText = return "default://"
+
+getTextFromFile :: FilePath -> App String
+getTextFromFile filename = return "file://asdasd"
+```
+
+Note, this is based on the `maybe` machinary, that calls a function
+returning hardcoded value in the case of `Nothing` or calls a function
+that takes the `Just` value;
+
+Also note, **I'm not concerned of exception handling at this stage**
+
+`defaultText` does not need to wrap the value in `Right`, since
+any result at any level, when not coming from throwError, is
+considered successful
+
+### implement `getTextFromFile` with exception handling
+
+in addition to use `App` to encapsulate Options-passing and IO,
+it also wraps up failure, previously managed by `Either`
+
+```haskell
+getTextFromFile :: FilePath -> App String
+getTextFromFile filename =
+  either throwError return =<< first IOError <$> liftIO (readFileSafe filename)
+
+readFileSafe :: FilePath -> IO (Either IOException String)
+readFileSafe = try . readFile
+```
+
+when `readFileSafe` encounters an IOException, we use AppError's
+IOError data ctor to bubble this exception up.
+
+Note, throwError does not take the raw exception value IOException;
+
+## top-level logic
+
+`run` function can be written in a fancy bind form:
+
+```haskell
+run = liftIO . print =<< handleExcited =<< handleCapitalize =<< getText
+```
+
+compose `liftIO . print` is to lift IO operation up to the App monad,
+so that it because a single function runs in the App context, taking
+the value returned by the handlers
