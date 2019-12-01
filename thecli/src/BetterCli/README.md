@@ -333,3 +333,7 @@ renderError (IOError msg e) = do
 The benefit of using a sum type for Error handling (AppError) is
 that I can implement different rendering logic for different context
 of failure
+
+## get familiar with Options.Applicative
+
+http://hackage.haskell.org/package/optparse-applicative
