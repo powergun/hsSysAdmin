@@ -1,8 +1,10 @@
 # The Cli Stack
 
-source:
+source: <https://thoughtbot.com/blog/refactoring-to-a-monad-transformer-stack>
 
-https://thoughtbot.com/blog/refactoring-to-a-monad-transformer-stack
+tutorials for `Options.Applicative`:
+
+<https://github.com/pcapriotti/optparse-applicative#arguments>
 
 ## use `stack run` properly
 
