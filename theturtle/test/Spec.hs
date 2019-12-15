@@ -1,2 +1,5 @@
+import qualified InputOutput.ExternalCmds
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main = do
+  InputOutput.ExternalCmds.demoAwsCliCmd

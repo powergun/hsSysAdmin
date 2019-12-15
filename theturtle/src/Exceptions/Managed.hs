@@ -1,3 +1,4 @@
+module Exceptions.Managed where
 {-
 TODO
 
