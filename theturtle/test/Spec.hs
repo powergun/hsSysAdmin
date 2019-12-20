@@ -1,9 +1,9 @@
 import qualified InputOutput.ExternalCmds
-import qualified StrFormatting.Demo
+import qualified Streams.Main
+import qualified StrFormatting.TrivialFormat
 
 main :: IO ()
 main = do
   -- InputOutput.ExternalCmds.demoAwsCliCmd
-
-  StrFormatting.Demo.demo
-
+  -- StrFormatting.TrivialFormat.demo
+  Streams.Main.main
