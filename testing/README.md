@@ -47,6 +47,8 @@ including:
 - print the random tree values for a proof of concept
 - do the rest of the plumping work and create the main() function
 
+source: <https://www.stackbuilders.com/news/a-quickcheck-tutorial-generators>
+
 ## HSpec
 
 see `test/DemoHSpec.hs` for how to define context - this can improve
