@@ -28,6 +28,25 @@ HUnit, tasty, tasty-hunit, tasty-smallcheck, tasty-quickcheck
 
 see `test/DemoHUnit.hs`
 
+### Tasty & QuickCheck
+
+inspired by a discussion in the fp school channel;
+
+problem: given a custom data structure (commonly a tree-like structure
+that is recursive), how to randomly generate instances of such data
+for testing?
+
+see: src/QuickCheckRandGen.hs for the tree-like data structure, the
+test subject;
+
+see: test/DemoQuickCheckRandGen.hs for the tasty-quickcheck setup,
+including:
+
+- implement an instance of QuickCheck.Arbitray for the tree type
+- create property-based test function
+- print the random tree values for a proof of concept
+- do the rest of the plumping work and create the main() function
+
 ## HSpec
 
 see `test/DemoHSpec.hs` for how to define context - this can improve
