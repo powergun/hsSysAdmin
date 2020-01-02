@@ -10,6 +10,8 @@ import           Test.Tasty
 import           Test.Tasty.QuickCheck
 import qualified Test.Tasty.QuickCheck as QC
 
+import qualified Test.QuickCheck
+
 instance Arbitrary Doc where
  arbitrary =
    oneof [ return Empty
@@ -43,6 +45,15 @@ qcProps = testGroup "(checked by QuickCheck)"
 
 main = do
   forM_ [1..100] $ \_ -> generate (arbitrary :: Gen Doc) >>= print
+
+  -- this form comes from Test.QuickCheck (the original QuickCheck
+  -- library); it can be handy for trivial testing
+  -- source: first principles, P/625
+  Test.QuickCheck.quickCheck (\doc -> id (doc :: Doc) == doc)
+
+  -- this print the random value used in each iteration; beware
+  -- that I must provide accurate type information
+  Test.QuickCheck.verboseCheck (\doc -> id (doc :: Doc) == doc)
 
   defaultMain tests
   where
