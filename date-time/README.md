@@ -30,3 +30,5 @@ Problem: to register a user, a candidate must be X year old
 
 This uses some important concepts of `Data.Time.Calendar` and
 `Data.Time.Clock` libaries
+
+see related example: how to add offset to the current time via `Data.Time.Clock`, source: first principles P/806
