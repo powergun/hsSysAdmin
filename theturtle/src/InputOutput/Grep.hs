@@ -1,8 +1,15 @@
-module InputOutput.Grep where
-{-
-TODO
+{-# LANGUAGE OverloadedStrings #-}
 
-source:
+module InputOutput.Grep (demo) where
 
-http://hackage.haskell.org/package/turtle-1.5.15/docs/Turtle-Tutorial.html
--}
+-- source: http://hackage.haskell.org/package/turtle-1.5.15/docs/Turtle-Prelude.html#v:grep
+
+import           Turtle
+
+demoSingleFileGrep :: IO ()
+demoSingleFileGrep =
+  stdout (grep "id" (input "./testdata/records.txt"))
+
+demo :: IO ()
+demo = do
+  demoSingleFileGrep
