@@ -22,6 +22,7 @@ description: Please see the README on GitHub at <https://github.com/githubuser/d
 dependencies:
   - base >= 4.7 && < 5
   - time == 1.8.0.2
+  - rio == 0.1.12.0
 library:
   source-dirs: src
 
