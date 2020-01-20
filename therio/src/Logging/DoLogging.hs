@@ -6,4 +6,7 @@ import           RIO
 
 demo :: IO ()
 demo = runSimpleApp $ do
-  logInfo "there is acow"
+  logDebug "Debug"
+  logInfo "Info"
+  logWarn "Warn"
+  logError "Error"
