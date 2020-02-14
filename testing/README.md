@@ -1,5 +1,11 @@
 # All about testing in Haskell
 
+## How to run single test target on stack
+
+`stack test <local package>:<target>`; example: hsPerf/monitoring
+
+## Testing
+
 source:
 
 [Monday morning haskell](https://mmhaskell.com/testing-1)
